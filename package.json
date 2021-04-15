@@ -1,0 +1,18 @@
+{
+  "name": "catedrabob-spc19-ens",
+  "version": "1.0.0",
+  "description": "Servicio de notificación de eventos de blockchain del proyecto SPC19",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Benito Cuesta <bcuesta@ull.edu.es>",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "express": "^4.16.4",
+    "nodemailer": "^4.6.8",
+    "web3": "^1.2.6",
+    "web3-eea": "^0.10.0"
+  }
+}

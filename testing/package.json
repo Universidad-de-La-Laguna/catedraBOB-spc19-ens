@@ -1,0 +1,15 @@
+{
+  "name": "eventnotificationservice",
+  "version": "1.0.0",
+  "description": "Servicio de notificación de eventos del sistema T3 ",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Benito Cuesta <bcuesta@opencanarias.es>",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "solc": "^0.4.18",
+    "web3": "^1.0.0-beta.35"
+  }
+}
