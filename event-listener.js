@@ -4,8 +4,12 @@ const mail = require('./mail-sender')
 const Web3 = require("web3")
 const EEAClient = require("web3-eea")
 
+const chainId = 1337
+
 // Connect with node
-const node = new EEAClient(new Web3(config.besu.node.wsUrl), 1337)
+console.log(`Connecting to node ${config.besu.node.wsUrl}`)
+console.log(`ChainId = ${chainId}`)
+const node = new EEAClient(new Web3(config.besu.node.wsUrl), chainId)
 
 let contracts = []
 
