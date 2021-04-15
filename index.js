@@ -21,20 +21,6 @@ app.get('/new', (req, res) => {
     }
 })
 
-var server = app.listen(PORT, () => {
+app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`)
-
-//   setTimeout(function(){ eventListener.stopWatchAllEvents() }, 10000)
 })
-
-// Handle ^C
-// process.on('SIGINT', shutdown)
-
-// Do graceful shutdown
-function shutdown() {
-    console.log('graceful shutdown express')
-
-    server.close( () => {
-        console.log('closed express')
-    })
-}
