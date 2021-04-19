@@ -10,10 +10,10 @@ const mail = require('./mail-sender')
 const chainId = 1337
 
 // Add ABI contract
-const PCRContractPath = path.resolve(__dirname, 'contract', config.besu.contractABIFile)
-const PCRContractJSON = JSON.parse(fs.readFileSync(PCRContractPath))
+const contractPath = path.resolve(__dirname, 'contract', config.besu.contractABIFile)
+const contractJSON = JSON.parse(fs.readFileSync(contractPath))
 console.log(`Contract ABI file used: ${config.besu.contractABIFile}`)
-abiDecoder.addABI(PCRContractJSON.abi)
+abiDecoder.addABI(contractJSON.abi)
 
 // Connect with node
 console.log(`Connecting to node ${config.besu.node.wsUrl}`)
