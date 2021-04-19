@@ -18,5 +18,4 @@ COPY . /usr/src/app
 
 # VOLUME ["/usr/src/app/contract/contractABI.json"]
 
-EXPOSE 8000
 CMD [ "npm", "start" ]

@@ -11,63 +11,54 @@ console.log(`Connecting to node ${config.besu.node.wsUrl}`)
 console.log(`ChainId = ${chainId}`)
 const node = new EEAClient(new Web3(config.besu.node.wsUrl), chainId)
 
-let contracts = []
+function initializeEventMonitor() {
+    const filter = {
+        // address: contract,
+        fromBlock: '0x01'
+    }
 
-function addContract(contract) {
-    if (contracts.indexOf(contract) == -1) {
+    console.log(`Installing filter ${JSON.stringify(filter)} with privacyGroupId ${config.besu.privacyGroupId}`)
 
-        const filter = {
-            address: contract,
-            fromBlock: '0x01'
+    // Create subscription
+    return node.priv.subscribe(config.besu.privacyGroupId, filter, (error, result) => {
+        if (! error) {
+            console.log("Installed filter", result)
+            console.log(`Watching privacyGroupId ${config.besu.privacyGroupId}`)
+        } else {
+            console.error("Problem installing filter:", error)
+            throw error
         }
+    })
+    .then(async subscription => {
+        // Add handlers for incoming events
+        subscription
+            .on("data", log => {
+                if (log.result != null) {
+                    // Logs from subscription are nested in `result` key
+                    console.log("LOG =>", log.result)
 
-        console.log(`Installing filter ${filter} with privacyGroupId ${config.besu.privacyGroupId}`)
+                    //TODO: decodificar evento y enviar correo
+                } else {
+                    console.log("LOG =>", log)
+                }
+            })
+            .on("error", console.error)
 
-        // Create subscription
-        return node.priv.subscribe(config.besu.privacyGroupId, filter, (error, result) => {
-            if (! error) {
-                console.log("Installed filter", result)
-                console.log(`Watching contract ${contract} with privacyGroupId ${config.besu.privacyGroupId}`)
-            } else {
-                console.error("Problem installing filter:", error)
-                throw error
-            }
-        })
-        .then(async subscription => {
-            // Add handlers for incoming events
-            subscription
-                .on("data", log => {
-                    if (log.result != null) {
-                        // Logs from subscription are nested in `result` key
-                        console.log("LOG =>", log.result)
-
-                        //TODO: decodificar evento y enviar correo
+        // Unsubscribe and disconnect on interrupt
+        process
+            .on("SIGINT", async () => {
+                console.log("unsubscribing")
+                await subscription.unsubscribe((error, success) => {
+                    if (!error) {
+                        console.log("Unsubscribed:", success)
                     } else {
-                        console.log("LOG =>", log)
+                        console.error("Failed to unsubscribe:", error)
                     }
+    
+                    node.currentProvider.disconnect()
                 })
-                .on("error", console.error)
-
-            // Unsubscribe and disconnect on interrupt
-            process
-                .on("SIGINT", async () => {
-                    console.log("unsubscribing")
-                    await subscription.unsubscribe((error, success) => {
-                        if (!error) {
-                            console.log("Unsubscribed:", success)
-                        } else {
-                            console.error("Failed to unsubscribe:", error)
-                        }
-        
-                        node.currentProvider.disconnect()
-                    })
-                })
-        })
-    }
-    else {
-        console.log(`Contract ${contract} already watched!`)
-        return false
-    }
+            })
+    })
 }
 
 //TODO: Adaptar el metodo sendEmail para enviar los correos que correspondan
@@ -125,5 +116,5 @@ function hex2a(hexx) {
 }
 
 module.exports = {
-    addContract
+    initializeEventMonitor
 }
