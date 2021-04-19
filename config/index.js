@@ -1,7 +1,4 @@
 module.exports = {
-    contract: {
-        abi: require('../contract/contractABI.json')
-    },
     EMAIL: {
         SMTP: {
           SERVICE: 'gmail',
@@ -19,6 +16,7 @@ module.exports = {
     },
     besu: {
       privacyGroupId: process.env.PRIVACYGROUPID || "7LGGJ9igv9hZvgyLtTF7hTtisABHmFsNZLhsTzBPS2M=",
+      contractABIFile: process.env.CONTRACTABIFILE || "PCR.json",
       node: {
         wsUrl: process.env.BESUNODEWSURL || "ws://127.0.0.1:20003",
       }

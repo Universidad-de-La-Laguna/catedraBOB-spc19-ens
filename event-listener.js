@@ -1,10 +1,19 @@
-const config = require('./config')
-const mail = require('./mail-sender')
-
+const path = require('path')
+const fs = require('fs-extra')
+const abiDecoder = require('abi-decoder')
 const Web3 = require("web3")
 const EEAClient = require("web3-eea")
 
+const config = require('./config')
+const mail = require('./mail-sender')
+
 const chainId = 1337
+
+// Add ABI contract
+const PCRContractPath = path.resolve(__dirname, 'contract', config.besu.contractABIFile)
+const PCRContractJSON = JSON.parse(fs.readFileSync(PCRContractPath))
+console.log(`Contract ABI file used: ${config.besu.contractABIFile}`)
+abiDecoder.addABI(PCRContractJSON.abi)
 
 // Connect with node
 console.log(`Connecting to node ${config.besu.node.wsUrl}`)
@@ -37,7 +46,12 @@ function initializeEventMonitor() {
                     // Logs from subscription are nested in `result` key
                     console.log("LOG =>", log.result)
 
-                    //TODO: decodificar evento y enviar correo
+                    // Decode event
+                    console.log("Decoding received log...")
+                    const decodedLogs = abiDecoder.decodeLogs([ log.result ])
+                    console.log(JSON.stringify(decodedLogs))
+
+                    //TODO: enviar correo
                 } else {
                     console.log("LOG =>", log)
                 }

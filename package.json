@@ -10,6 +10,7 @@
   "author": "Benito Cuesta <bcuesta@ull.edu.es>",
   "license": "UNLICENSED",
   "dependencies": {
+    "abi-decoder": "^2.4.0",
     "nodemailer": "^4.6.8",
     "web3": "^1.2.6",
     "web3-eea": "^0.10.0"
