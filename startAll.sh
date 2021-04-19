@@ -11,12 +11,17 @@ done
 echo "Building image..."
 docker build -t catedrabob-spc19-ens .
 
+echo "Getting SPC19 general contract address from container catedrabob-spc19-api-taker..."
+SPC19CONTRACTADDRESS=$(docker logs catedrabob-spc19-api-taker | grep "SPC19CONTRACTADDRESS" | sed 's/.*SPC19CONTRACTADDRESS=\(.*\)/\1/')
+echo "SPC19 general contract address: $SPC19CONTRACTADDRESS"
+
 echo "Running container catedrabob-spc19-ens-taker..."
 docker run -d \
    --name catedrabob-spc19-ens-taker \
    -e PRIVACYGROUPID=7LGGJ9igv9hZvgyLtTF7hTtisABHmFsNZLhsTzBPS2M= \
    -e BESUNODEWSURL=ws://spc19-test-network_member2besu_1:8546 \
    -e CONTRACTABIFILE=PCR.json \
+   -e SPC19CONTRACTADDRESS=$SPC19CONTRACTADDRESS \
    --network spc19-test-network_quorum-dev-quickstart \
    catedrabob-spc19-ens
 
@@ -26,5 +31,6 @@ docker run -d \
    -e PRIVACYGROUPID=DyAOiF/ynpc+JXa2YAGB0bCitSlOMNm+ShmB/7M6C4w= \
    -e BESUNODEWSURL=ws://spc19-test-network_member1besu_1:8546 \
    -e CONTRACTABIFILE=Insurance.json \
+   -e SPC19CONTRACTADDRESS=$SPC19CONTRACTADDRESS \
    --network spc19-test-network_quorum-dev-quickstart \
    catedrabob-spc19-ens

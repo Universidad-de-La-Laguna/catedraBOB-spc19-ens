@@ -6,6 +6,7 @@ const EEAClient = require("web3-eea")
 
 const config = require('./config')
 const mail = require('./mail-sender')
+const eventHandler = require('./eventHandler')
 
 const chainId = 1337
 
@@ -41,7 +42,7 @@ function initializeEventMonitor() {
     .then(async subscription => {
         // Add handlers for incoming events
         subscription
-            .on("data", log => {
+            .on("data", async log => {
                 if (log.result != null) {
                     // Logs from subscription are nested in `result` key
                     console.log("LOG =>", log.result)
@@ -51,7 +52,14 @@ function initializeEventMonitor() {
                     const decodedLogs = abiDecoder.decodeLogs([ log.result ])
                     console.log(JSON.stringify(decodedLogs))
 
-                    //TODO: enviar correo
+                    // Execute actions
+                    try {
+                        await eventHandler.manage(decodedLogs[0])
+
+                        //TODO: enviar correo
+                    } catch(error) {
+                        console.log(error)
+                    }
                 } else {
                     console.log("LOG =>", log)
                 }
