@@ -6,14 +6,15 @@ const EEAClient = require("web3-eea")
 
 const config = require('./config')
 const mail = require('./mail-sender')
+const eventHandler = require('./eventHandler')
 
 const chainId = 1337
 
 // Add ABI contract
-const PCRContractPath = path.resolve(__dirname, 'contract', config.besu.contractABIFile)
-const PCRContractJSON = JSON.parse(fs.readFileSync(PCRContractPath))
+const contractPath = path.resolve(__dirname, 'contract', config.besu.contractABIFile)
+const contractJSON = JSON.parse(fs.readFileSync(contractPath))
 console.log(`Contract ABI file used: ${config.besu.contractABIFile}`)
-abiDecoder.addABI(PCRContractJSON.abi)
+abiDecoder.addABI(contractJSON.abi)
 
 // Connect with node
 console.log(`Connecting to node ${config.besu.node.wsUrl}`)
@@ -41,7 +42,7 @@ function initializeEventMonitor() {
     .then(async subscription => {
         // Add handlers for incoming events
         subscription
-            .on("data", log => {
+            .on("data", async log => {
                 if (log.result != null) {
                     // Logs from subscription are nested in `result` key
                     console.log("LOG =>", log.result)
@@ -51,7 +52,14 @@ function initializeEventMonitor() {
                     const decodedLogs = abiDecoder.decodeLogs([ log.result ])
                     console.log(JSON.stringify(decodedLogs))
 
-                    //TODO: enviar correo
+                    // Execute actions
+                    try {
+                        await eventHandler.manage(decodedLogs[0])
+
+                        //TODO: enviar correo
+                    } catch(error) {
+                        console.log(error)
+                    }
                 } else {
                     console.log("LOG =>", log)
                 }
