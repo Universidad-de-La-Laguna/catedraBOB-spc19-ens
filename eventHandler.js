@@ -77,49 +77,53 @@ function getFunctionAbi(abi, functionName) {
  */
 function updatePCR(insuranceId, idPCR, resultPCR) {
     return new Promise(async function (resolve, reject) {
-        // Primero obtenemos la dirección del contrato de la poliza
-        // a partir de la direccion del contrato general pasado por configuracion
-        console.log("Getting insurance contract address using SPC19 general contract address")
-        let insuranceContractAddress = await getInsuranceAddressByInsuranceId(insuranceId)
-        console.log(`Insurance contract address: ${insuranceContractAddress}`)
+        try {
+            // Primero obtenemos la dirección del contrato de la poliza
+            // a partir de la direccion del contrato general pasado por configuracion
+            console.log("Getting insurance contract address using SPC19 general contract address")
+            let insuranceContractAddress = await getInsuranceAddressByInsuranceId(insuranceId)
+            console.log(`Insurance contract address: ${insuranceContractAddress}`)
 
-        let funcAbi = await getFunctionAbi(InsuranceContractJSON.abi, 'updatePCR')
-        console.log(funcAbi)
+            let funcAbi = await getFunctionAbi(InsuranceContractJSON.abi, 'updatePCR')
+            console.log(funcAbi)
 
-        // Encode arguments
-        let funcArguments = web3.eth.abi
-        .encodeParameters(funcAbi.inputs, [
-            Web3Utils.fromAscii(idPCR),
-            Web3Utils.fromAscii(resultPCR)
-        ])
-        .slice(2)
+            // Encode arguments
+            let funcArguments = web3.eth.abi
+            .encodeParameters(funcAbi.inputs, [
+                Web3Utils.fromAscii(idPCR),
+                Web3Utils.fromAscii(resultPCR)
+            ])
+            .slice(2)
 
-  
-        let functionParams = {
-            to: insuranceContractAddress,
-            data: funcAbi.signature + funcArguments,
-            privateFrom: config.orion.taker.publicKey,
-            privateFor: [config.orion.insurer.publicKey],
-            privateKey: config.besu.node.privateKey,
-        }
+    
+            let functionParams = {
+                to: insuranceContractAddress,
+                data: funcAbi.signature + funcArguments,
+                privateFrom: config.orion.taker.publicKey,
+                privateFor: [config.orion.insurer.publicKey],
+                privateKey: config.besu.node.privateKey,
+            }
 
-        let transactionHash = await web3.eea.sendRawTransaction(functionParams)
-        console.log(`Transaction hash: ${transactionHash}`)
-        let result = await web3.priv.getTransactionReceipt(
-            transactionHash,
-            config.orion.taker.publicKey
-        )
-
-        console.log(result)
-
-        if (result.revertReason) {
-            console.log(
-              Web3Utils.toAscii(result.revertReason),
-              '//////////////////////////////////////////'
+            let transactionHash = await web3.eea.sendRawTransaction(functionParams)
+            console.log(`Transaction hash: ${transactionHash}`)
+            let result = await web3.priv.getTransactionReceipt(
+                transactionHash,
+                config.orion.taker.publicKey
             )
-            reject(Web3Utils.toAscii(result.revertReason))
+
+            console.log(result)
+
+            if (result.revertReason) {
+                console.log(
+                Web3Utils.toAscii(result.revertReason),
+                '//////////////////////////////////////////'
+                )
+                reject(Web3Utils.toAscii(result.revertReason))
+            }
+            resolve(result)
+        } catch(error) {
+            reject(error)
         }
-        resolve(result)
     })
 }
 
