@@ -25,7 +25,6 @@ module.exports = {
         publicKey: process.env.LABORATORYPUBLICKEY || "k2zXEin4Ip/qBGlRkJejnGWdP9cjkK+DAvKNW31L2C8="
       }
     },
-    spc19ContractAddress: process.env.SPC19CONTRACTADDRESS,
     besu: {
       privacyGroupId: process.env.PRIVACYGROUPID || "7LGGJ9igv9hZvgyLtTF7hTtisABHmFsNZLhsTzBPS2M=",
       contractABIFile: process.env.CONTRACTABIFILE || "PCR.json",

@@ -43,7 +43,7 @@ function initializeEventMonitor() {
         // Add handlers for incoming events
         subscription
             .on("data", async log => {
-                if (log.result != null) {
+                if (log.result != null) { 
                     // Logs from subscription are nested in `result` key
                     console.log("LOG =>", log.result)
 

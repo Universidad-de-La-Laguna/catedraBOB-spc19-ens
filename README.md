@@ -2,9 +2,9 @@
 
 Servicio de notificación de eventos. Permite la suscripción a los eventos de varios contratos con un mismo `privacy Group`
 
-Recibe por configuración el `privacyGroupId` al que se quiere escuchar, el webservice endpoint del nodo local de Hyperledger Besu local, el fichero con el ABI del contrato asociado a los eventos a recibir, y la dirección del contrato general SPC19 desplegado (ver repo [catedraBOB-spc19-api](https://github.com/Universidad-de-La-Laguna/catedraBOB-spc19-api)).
+Recibe por configuración el `privacyGroupId` al que se quiere escuchar, el webservice endpoint del nodo local de Hyperledger Besu local, y el fichero con el ABI del contrato asociado a los eventos a recibir.
 
-Por defecto, usa el `privacyGroupId` asociado a la combinación `[ taker, laboratory ]`, el endpoint del nodo del `taker` (hotel) del proyecto SPC19, y el contrato `PCR.json`. La variable SPC19CONTRACTADDRESS no tiene valor por defecto y es obligatorio pasarla como parámetro.
+Por defecto, usa el `privacyGroupId` asociado a la combinación `[ taker, laboratory ]`, el endpoint del nodo del `taker` (hotel) del proyecto SPC19, y el contrato `PCR.json`.
 
 > Nota: Los contratos deben estar incluidos como recursos en la carpeta `contract`.
 
@@ -13,7 +13,6 @@ Variables de entorno:
    - PRIVACYGROUPID [ 7LGGJ9igv9hZvgyLtTF7hTtisABHmFsNZLhsTzBPS2M= ]
    - BESUNODEWSURL [ ws://127.0.0.1:20003 ]
    - CONTRACTABIFILE [ PCR.json ]
-   - SPC19CONTRACTADDRESS [ undefined ]
 
 ## Construcción
 
@@ -31,7 +30,6 @@ docker run -d \
    -e PRIVACYGROUPID=DyAOiF/ynpc+JXa2YAGB0bCitSlOMNm+ShmB/7M6C4w= \
    -e BESUNODEWSURL=ws://spc19-test-network_member1besu_1:8546 \
    -e CONTRACTABIFILE=PCR.json \
-   -e SPC19CONTRACTADDRESS=$(docker logs catedrabob-spc19-api-taker | grep "SPC19CONTRACTADDRESS" | sed 's/.*SPC19CONTRACTADDRESS=\(.*\)/\1/') \
    --network spc19-test-network_quorum-dev-quickstart \
    catedrabob-spc19-ens
 ```
@@ -44,7 +42,6 @@ docker run -d \
    -e PRIVACYGROUPID=7LGGJ9igv9hZvgyLtTF7hTtisABHmFsNZLhsTzBPS2M= \
    -e BESUNODEWSURL=ws://spc19-test-network_member2besu_1:8546 \
    -e CONTRACTABIFILE=Insurance.json \
-   -e SPC19CONTRACTADDRESS=$(docker logs catedrabob-spc19-api-taker | grep "SPC19CONTRACTADDRESS" | sed 's/.*SPC19CONTRACTADDRESS=\(.*\)/\1/') \
    --network spc19-test-network_quorum-dev-quickstart \
    catedrabob-spc19-ens
 ```
