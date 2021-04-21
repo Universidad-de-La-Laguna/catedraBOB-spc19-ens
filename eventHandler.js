@@ -90,17 +90,16 @@ function hex2a(hexx) {
 
 /**
  * Envio de correos a la aseguradora con los datos del pago a realizar
- * @param {*} quantity 
- * @param {*} hotelId 
- * @param {*} hotelIban 
  */
-function sendEmailToInsurer(quantity, hotelId, hotelIban, insuranceId) {
+function sendEmailToInsurer(hotelId, insuranceId) {
+    let link = "" //TODO: poner enlace a consulta de póliza de aplicación web
+
     // send email
     mail.sendEmail(
         config.EMAIL.insurerEmail,
         'SPC19: Indemnización calculada por la blockchain',
-        `Hola,\nSe ha recibido un evento de la blockchain indicando que procede un pago con los siguientes datos.\n   - Identificador de la póliza: ${insuranceId}\n   - Identitifador del hotel: ${hotelId}\n   - IBAN del hotel: ${hotelIban}\n   - Importe: ${quantity}`,
-        `<p>Hola, <br><br>Se ha recibido un evento de la blockchain indicando que procede un pago con los siguientes datos:</p> <ul><li>Identificador de la p&oacute;liza: ${insuranceId}</li><li>Identitifador del hotel: ${hotelId}</li><li>IBAN del hotel: ${hotelIban}</li><li>Importe: ${quantity} &euro;</li></ul>`
+        `Hola,\nSe ha recibido un evento de la blockchain indicando que procede un pago con los siguientes datos.\n   - Identificador de la póliza: ${insuranceId}\n   - Identitifador del hotel: ${hotelId}\nPuede acceder a los datos de la póliza usando el siguiente enlace: ${link}`,
+        `<p>Hola, <br><br>Se ha recibido un evento de la blockchain indicando que procede un pago con los siguientes datos:</p><p><ul><li>Identificador de la p&oacute;liza: ${insuranceId}</li><li>Identitifador del hotel: ${hotelId}</li></ul></p><p>Puede acceder a los datos de la p&oacute;liza usando el siguiente enlace: ${link}</p>`
     )
 }
 
@@ -124,12 +123,10 @@ async function manage(log) {
         case 'checkPayment':
             console.log('Sending email to insurer...')
 
-            let quantity = log.events.find(e => e.name === 'quantity').value
             let hotelId = hex2a(log.events.find(e => e.name === 'hotelId').value)
-            let hotelIban = hex2a(log.events.find(e => e.name === 'hotelIban').value)
             let insuranceId = hex2a(log.events.find(e => e.name === 'insuranceId').value)
 
-            sendEmailToInsurer(quantity, hotelId, hotelIban, insuranceId)
+            sendEmailToInsurer(hotelId, insuranceId)
             console.log('Email sended to insurer')
             break;
         default:
