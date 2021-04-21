@@ -91,15 +91,15 @@ function hex2a(hexx) {
 /**
  * Envio de correos a la aseguradora con los datos del pago a realizar
  */
-function sendEmailToInsurer(hotelId, insuranceId) {
+function sendEmailToInsurer(takerId, insuranceId) {
     let link = "" //TODO: poner enlace a consulta de póliza de aplicación web
 
     // send email
     mail.sendEmail(
         config.EMAIL.insurerEmail,
         'SPC19: Indemnización calculada por la blockchain',
-        `Hola,\nSe ha recibido un evento de la blockchain indicando que procede un pago con los siguientes datos.\n   - Identificador de la póliza: ${insuranceId}\n   - Identitifador del hotel: ${hotelId}\nPuede acceder a los datos de la póliza usando el siguiente enlace: ${link}`,
-        `<p>Hola, <br><br>Se ha recibido un evento de la blockchain indicando que procede un pago con los siguientes datos:</p><p><ul><li>Identificador de la p&oacute;liza: ${insuranceId}</li><li>Identitifador del hotel: ${hotelId}</li></ul></p><p>Puede acceder a los datos de la p&oacute;liza usando el siguiente enlace: ${link}</p>`
+        `Hola,\nSe ha recibido un evento de la blockchain indicando que procede un pago con los siguientes datos.\n   - Identificador de la póliza: ${insuranceId}\n   - Identitifador del hotel: ${takerId}\nPuede acceder a los datos de la póliza usando el siguiente enlace: ${link}`,
+        `<p>Hola, <br><br>Se ha recibido un evento de la blockchain indicando que procede un pago con los siguientes datos:</p><p><ul><li>Identificador de la p&oacute;liza: ${insuranceId}</li><li>Identitifador del hotel: ${takerId}</li></ul></p><p>Puede acceder a los datos de la p&oacute;liza usando el siguiente enlace: ${link}</p>`
     )
 }
 
@@ -123,10 +123,10 @@ async function manage(log) {
         case 'checkPayment':
             console.log('Sending email to insurer...')
 
-            let hotelId = hex2a(log.events.find(e => e.name === 'hotelId').value)
+            let takerId = hex2a(log.events.find(e => e.name === 'takerId').value)
             let insuranceId = hex2a(log.events.find(e => e.name === 'insuranceId').value)
 
-            sendEmailToInsurer(hotelId, insuranceId)
+            sendEmailToInsurer(takerId, insuranceId)
             console.log('Email sended to insurer')
             break;
         default:
