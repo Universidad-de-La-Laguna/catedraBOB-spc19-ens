@@ -3,12 +3,12 @@ module.exports = {
       SMTP: {
         SERVICE: 'gmail',
         FROM: {
-          EMAIL: process.env.EMAIL_SMTP_FROM_EMAIL || 'ccetsii@ull.edu.es',
+          EMAIL: process.env.EMAIL_SMTP_FROM_EMAIL || 'spc19project@gmail.com',
           NAME: process.env.EMAIL_SMTP_FROM_NAME || 'SPC19 Notification'
         },
         AUTH: {
-          USERNAME: process.env.EMAIL_SMTP_AUTH_USERNAME || 'ccetsii@ull.edu.es',
-          PASSWORD: process.env.EMAIL_SMTP_AUTH_PASSWORD || 'CentCalc19'
+          USERNAME: process.env.EMAIL_SMTP_AUTH_USERNAME || 'spc19project@gmail.com',
+          PASSWORD: process.env.EMAIL_SMTP_AUTH_PASSWORD || 'Spc19Project$'
         }
       },
       insurerEmail: process.env.INSUREREMAIL || 'spc19-insurer@mailinator.com'
