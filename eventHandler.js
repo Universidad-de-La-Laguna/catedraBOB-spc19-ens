@@ -7,6 +7,7 @@ const Web3Utils = require('web3-utils')
 const EEAClient = require('web3-eea')
 
 const config = require('./config')
+const mail = require('./mail-sender')
 
 const chainId = 1337
 const web3 = new EEAClient(new Web3(config.besu.node.url), chainId)
@@ -87,24 +88,52 @@ function hex2a(hexx) {
     return str;
 }
 
+/**
+ * Envio de correos a la aseguradora con los datos del pago a realizar
+ * @param {*} quantity 
+ * @param {*} hotelId 
+ * @param {*} hotelIban 
+ */
+function sendEmailToInsurer(quantity, hotelId, hotelIban, insuranceId) {
+    // send email
+    mail.sendEmail(
+        config.EMAIL.insurerEmail,
+        'SPC19: Indemnización calculada por la blockchain',
+        `Hola,\nSe ha recibido un evento de la blockchain indicando que procede un pago con los siguientes datos.\n   - Identificador de la póliza: ${insuranceId}\n   - Identitifador del hotel: ${hotelId}\n   - IBAN del hotel: ${hotelIban}\n   - Importe: ${quantity}`,
+        `<p>Hola, <br><br>Se ha recibido un evento de la blockchain indicando que procede un pago con los siguientes datos:</p> <ul><li>Identificador de la p&oacute;liza: ${insuranceId}</li><li>Identitifador del hotel: ${hotelId}</li><li>IBAN del hotel: ${hotelIban}</li><li>Importe: ${quantity} &euro;</li></ul>`
+    )
+}
+
 async function manage(log) {
+    console.log(`Event detected: ${log.name}`)
     switch (log.name) {
         case 'pcrUpdate':
-          console.log('Detectado evento pcrUpdate. Se actualiza la PCR en la póliza...')
+            console.log('Updating PCR in Insurance...')
 
-          let insuranceContractAddress = log.events.find(e => e.name === 'insuranceAddress').value
-          let idPCR = hex2a(log.events.find(e => e.name === 'pcrId').value)
-          let idResult = hex2a(log.events.find(e => e.name === 'result').value)
+            let insuranceContractAddress = log.events.find(e => e.name === 'insuranceAddress').value
+            let idPCR = hex2a(log.events.find(e => e.name === 'pcrId').value)
+            let idResult = hex2a(log.events.find(e => e.name === 'result').value)
 
-          console.log(`Event insuranceContractAddress: ${insuranceContractAddress}`)
-          console.log(`Event idPCR: ${idPCR}`)
-          console.log(`Event idResult: ${idResult}`)
+            console.log(`Event insuranceContractAddress: ${insuranceContractAddress}`)
+            console.log(`Event idPCR: ${idPCR}`)
+            console.log(`Event idResult: ${idResult}`)
 
-          await updatePCR(insuranceContractAddress, idPCR, idResult)
+            await updatePCR(insuranceContractAddress, idPCR, idResult)
 
-          break;
+            break;
+        case 'checkPayment':
+            console.log('Sending email to insurer...')
+
+            let quantity = log.events.find(e => e.name === 'quantity').value
+            let hotelId = hex2a(log.events.find(e => e.name === 'hotelId').value)
+            let hotelIban = hex2a(log.events.find(e => e.name === 'hotelIban').value)
+            let insuranceId = hex2a(log.events.find(e => e.name === 'insuranceId').value)
+
+            sendEmailToInsurer(quantity, hotelId, hotelIban, insuranceId)
+            console.log('Email sended to insurer')
+            break;
         default:
-          console.log("WARNING: Event log not recognized!")
+            console.log("WARNING: Event log not recognized!")
       }
 }
 

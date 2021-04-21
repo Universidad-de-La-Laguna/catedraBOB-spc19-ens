@@ -5,7 +5,6 @@ const Web3 = require("web3")
 const EEAClient = require("web3-eea")
 
 const config = require('./config')
-const mail = require('./mail-sender')
 const eventHandler = require('./eventHandler')
 
 const chainId = 1337
@@ -81,60 +80,6 @@ function initializeEventMonitor() {
                 })
             })
     })
-}
-
-//TODO: Adaptar el metodo sendEmail para enviar los correos que correspondan
-function sendEmail(event) {
-    console.log(`Received Event: ${JSON.stringify(event)}`)
-
-    if (event.event === 'RegisterProductEvent') {
-        console.log(`Received event of type ${event.event}. Contract=${event.address}. Provider email = ${hex2a(event.args.providerEmail)}. Reservation ID = ${hex2a(event.args.reservationId)}`)
-
-        const providerEmail = hex2a(event.args.providerEmail)
-
-        console.log(`LINK_DEST_VALIDATION: ${config.EMAIL.LINK_DEST_VALIDATION}`)
-
-        //personalizar el link dependiendo del proveedor y la direccion del contrato
-        let link = config.EMAIL.LINK_DEST_VALIDATION
-        link = link.replace('<T3_APP>', config.providerMap[providerEmail] || config.providerMap['default'])
-        link = link.replace('<CONTRACT>', event.address)
-    
-        // send email
-        mail.sendEmail(
-            providerEmail,
-            'Nueva reserva pendiente de validar',
-            `Hola, tienes una nueva reserva pendiente. Para validarla pulsa en el siguiente enlace ${link}`,
-            `<p>Hola, <br><br>Tienes una nueva reserva pendiente. Para validarla pulsa en el siguiente <a href="${link}">enlace</a></p>`
-        )
-    }
-    else if (event.event === 'ValidationDoneEvent') {
-        console.log(`Received event of type ${event.event}. Contract=${event.address}. Customer email = ${event.args.customerEmail}. Reservation ID = ${event.args.reservationId}. Product ID = ${event.args.productId}`)
-
-        const customerEmail = event.args.customerEmail
-
-        //personalizar el link dependiendo del proveedor y la direccion del contrato
-        let link = config.EMAIL.LINK_DEST_DETAIL
-        link = link.replace('<T3_APP>', config.providerMap['default'])
-        link = link.replace('<CONTRACT>', event.address)
-
-        mail.sendEmail(
-            customerEmail,
-            'Su reserva ha sido validada por un proveedor',
-            `Hola, Nos complace informarte que tu reserva ${event.args.reservationId} ha sido validada por un proveedor. Puedes revisar el detalle de la reserva pulsando el siguiente enlace ${link}`,
-            `<p>Hola, <br><br>Nos complace informarte que tu reserva ${event.args.reservationId} ha sido validada por un proveedor. Puedes revisar el detalle de la reserva pulsando el siguiente <a href="${link}">enlace</a></p>`
-        )
-    }
-    else {
-        console.log(`Unknown event of type ${event.event}`)
-    }
-}
-
-function hex2a(hexx) {
-    var hex = hexx.toString();//force conversion
-    var str = '';
-    for (var i = 2; (i < hex.length && hex.substr(i, 2) !== '00'); i += 2)
-        str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
-    return str;
 }
 
 module.exports = {

@@ -11,8 +11,7 @@ module.exports = {
           PASSWORD: process.env.EMAIL_SMTP_AUTH_PASSWORD || 'CentCalc19'
         }
       },
-      LINK_DEST_VALIDATION: process.env.EMAIL_LINK_DEST_VALIDATION || 'http://<T3_APP>/reservation/validate/<CONTRACT>',
-      LINK_DEST_DETAIL: process.env.EMAIL_LINK_DEST_DETAIL || 'http://<T3_APP>/reservation/<CONTRACT>',
+      insurerEmail: process.env.INSUREREMAIL || 'spc19-insurer@mailinator.com'
     },
     orion: {
       taker: {
@@ -33,12 +32,5 @@ module.exports = {
         wsUrl: process.env.BESUNODEWSURL || "ws://127.0.0.1:20003",
         privateKey: process.env.BESUNODEPRIVATEKEY || "c87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3"
       }
-    },
-    providerMap: process.env.PROVIDERS_MAP
-      ? JSON.parse(process.env.PROVIDERS_MAP)
-      : {
-        'default': '35.240.26.255:90',
-        'spc19_insurer@mailinator.com': '35.240.26.255:92',
-        'spc19_laboratory@mailinator.com': '35.240.26.255:91'
-      }
+    }
 }
