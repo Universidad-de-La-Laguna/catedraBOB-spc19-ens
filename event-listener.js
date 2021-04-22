@@ -6,18 +6,19 @@ const EEAClient = require("web3-eea")
 
 const config = require('./config')
 const eventHandler = require('./eventHandler')
+const { logger } = require('./utils/logger')
 
 const chainId = 1337
 
 // Add ABI contract
 const contractPath = path.resolve(__dirname, 'contract', config.besu.contractABIFile)
 const contractJSON = JSON.parse(fs.readFileSync(contractPath))
-console.log(`Contract ABI file used: ${config.besu.contractABIFile}`)
+logger.info(`Contract ABI file used: ${config.besu.contractABIFile}`)
 abiDecoder.addABI(contractJSON.abi)
 
 // Connect with node
-console.log(`Connecting to node ${config.besu.node.wsUrl}`)
-console.log(`ChainId = ${chainId}`)
+logger.info(`Connecting to node ${config.besu.node.wsUrl}`)
+logger.info(`ChainId = ${chainId}`)
 const node = new EEAClient(new Web3(config.besu.node.wsUrl), chainId)
 
 function initializeEventMonitor() {
@@ -26,15 +27,15 @@ function initializeEventMonitor() {
         fromBlock: '0x01'
     }
 
-    console.log(`Installing filter ${JSON.stringify(filter)} with privacyGroupId ${config.besu.privacyGroupId}`)
+    logger.info(`Installing filter ${JSON.stringify(filter)} with privacyGroupId ${config.besu.privacyGroupId}`)
 
     // Create subscription
     return node.priv.subscribe(config.besu.privacyGroupId, filter, (error, result) => {
         if (! error) {
-            console.log("Installed filter", result)
-            console.log(`Watching privacyGroupId ${config.besu.privacyGroupId}`)
+            logger.info("Installed filter", result)
+            logger.info(`Watching privacyGroupId ${config.besu.privacyGroupId}`)
         } else {
-            console.error("Problem installing filter:", error)
+            logger.error("Problem installing filter:", error)
             throw error
         }
     })
@@ -44,36 +45,34 @@ function initializeEventMonitor() {
             .on("data", async log => {
                 if (log.result != null) { 
                     // Logs from subscription are nested in `result` key
-                    console.log("LOG =>", log.result)
+                    logger.debug("LOG =>", log.result)
 
                     // Decode event
-                    console.log("Decoding received log...")
+                    logger.info("Decoding received log...")
                     const decodedLogs = abiDecoder.decodeLogs([ log.result ])
-                    console.log(JSON.stringify(decodedLogs))
+                    logger.info(JSON.stringify(decodedLogs))
 
                     // Execute actions
                     try {
                         await eventHandler.manage(decodedLogs[0])
-
-                        //TODO: enviar correo
                     } catch(error) {
-                        console.log(error)
+                        logger.error(error)
                     }
                 } else {
-                    console.log("LOG =>", log)
+                    logger.debug("LOG =>", log)
                 }
             })
-            .on("error", console.error)
+            .on("error", logger.error)
 
         // Unsubscribe and disconnect on interrupt
         process
             .on("SIGINT", async () => {
-                console.log("unsubscribing")
+                logger.info("unsubscribing")
                 await subscription.unsubscribe((error, success) => {
                     if (!error) {
-                        console.log("Unsubscribed:", success)
+                        logger.info("Unsubscribed:", success)
                     } else {
-                        console.error("Failed to unsubscribe:", error)
+                        logger.error("Failed to unsubscribe:", error)
                     }
     
                     node.currentProvider.disconnect()

@@ -4,7 +4,7 @@
   "description": "Servicio de notificación de eventos de blockchain del proyecto SPC19",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
+    "start": "node index.js | pino-pretty -c -t",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Benito Cuesta <bcuesta@ull.edu.es>",
@@ -12,6 +12,7 @@
   "dependencies": {
     "abi-decoder": "^2.4.0",
     "nodemailer": "^4.6.8",
+    "pino": "^6.11.3",
     "web3": "^1.2.6",
     "web3-eea": "^0.10.0"
   }

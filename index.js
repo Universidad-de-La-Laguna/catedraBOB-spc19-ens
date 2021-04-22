@@ -1,13 +1,13 @@
 'use strict'
 
-const config = require('./config')
 const eventListener = require('./event-listener')
+const { logger } = require("./utils/logger");
 
-console.log('Initializing event monitor...')
+logger.info('Initializing event monitor...')
 
 try {
     eventListener.initializeEventMonitor() 
 } catch(error) {
-    console.log('ERROR: Error al inicializar el monitor de eventos...')
-    console.log(error)
+    logger.error('ERROR: Error al inicializar el monitor de eventos...')
+    logger.error(error)
 }

@@ -8,6 +8,7 @@ const EEAClient = require('web3-eea')
 
 const config = require('./config')
 const mail = require('./mail-sender')
+const { logger } = require("./utils/logger")
 
 const chainId = 1337
 const web3 = new EEAClient(new Web3(config.besu.node.url), chainId)
@@ -38,7 +39,7 @@ function updatePCR(insuranceContractAddress, idPCR, resultPCR) {
     return new Promise(async function (resolve, reject) {
         try {
             let funcAbi = await getFunctionAbi(InsuranceContractJSON.abi, 'updatePCR')
-            console.log(funcAbi)
+            logger.debug(funcAbi)
 
             // Encode arguments
             let funcArguments = web3.eth.abi
@@ -57,19 +58,21 @@ function updatePCR(insuranceContractAddress, idPCR, resultPCR) {
                 privateKey: config.besu.node.privateKey,
             }
 
+            logger.info(`Launching updatePCR transaction to insurance contract...`)
             let transactionHash = await web3.eea.sendRawTransaction(functionParams)
-            console.log(`Transaction hash: ${transactionHash}`)
+            logger.debug(`Transaction hash: ${transactionHash}`)
             let result = await web3.priv.getTransactionReceipt(
                 transactionHash,
                 config.orion.taker.publicKey
             )
+            logger.info(`updatePCR transaction executed`)
 
-            console.log(result)
+            logger.debug(result)
 
             if (result.revertReason) {
-                console.log(
-                Web3Utils.toAscii(result.revertReason),
-                '//////////////////////////////////////////'
+                logger.error(
+                    Web3Utils.toAscii(result.revertReason),
+                    '//////////////////////////////////////////'
                 )
                 reject(Web3Utils.toAscii(result.revertReason))
             }
@@ -104,36 +107,36 @@ function sendEmailToInsurer(takerId, insuranceId) {
 }
 
 async function manage(log) {
-    console.log(`Event detected: ${log.name}`)
+    logger.info(`Event detected: ${log.name}`)
     switch (log.name) {
         case 'pcrUpdate':
-            console.log('Updating PCR in Insurance...')
+            logger.info('Updating PCR in Insurance...')
 
             let insuranceContractAddress = log.events.find(e => e.name === 'insuranceAddress').value
             let idPCR = hex2a(log.events.find(e => e.name === 'pcrId').value)
             let idResult = hex2a(log.events.find(e => e.name === 'result').value)
 
-            console.log(`Event insuranceContractAddress: ${insuranceContractAddress}`)
-            console.log(`Event idPCR: ${idPCR}`)
-            console.log(`Event idResult: ${idResult}`)
+            logger.info(`Event insuranceContractAddress: ${insuranceContractAddress}`)
+            logger.info(`Event idPCR: ${idPCR}`)
+            logger.info(`Event idResult: ${idResult}`)
 
             await updatePCR(insuranceContractAddress, idPCR, idResult)
 
             break;
         case 'checkPayment':
-            console.log('Sending email to insurer...')
+            logger.info('Sending email to insurer...')
 
             let takerId = hex2a(log.events.find(e => e.name === 'takerId').value)
             let insuranceId = hex2a(log.events.find(e => e.name === 'insuranceId').value)
 
             sendEmailToInsurer(takerId, insuranceId)
-            console.log('Email sended to insurer')
+            logger.info('Email sended to insurer')
             break;
         default:
-            console.log("WARNING: Event log not recognized!")
+            logger.warn("WARNING: Event log not recognized!")
       }
 }
 
 module.exports = {
-    manage,
+    manage
 } 

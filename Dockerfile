@@ -16,6 +16,9 @@ RUN npm install
 # Bundle app source
 COPY . /usr/src/app
 
+# Install node global dependencies
+RUN npm install -g pino-pretty
+
 # VOLUME ["/usr/src/app/contract/contractABI.json"]
 
 CMD [ "npm", "start" ]
