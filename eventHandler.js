@@ -9,6 +9,11 @@ const EEAClient = require('web3-eea')
 const config = require('./config')
 const mail = require('./mail-sender')
 const { logger } = require("./utils/logger")
+const { toUUID } = require("to-uuid");
+
+const mailTemplate = fs
+  .readFileSync(path.join(__dirname, "templates", "mail.template"))
+  .toString();
 
 const chainId = 1337
 const web3 = new EEAClient(new Web3(config.besu.node.url), chainId)
@@ -95,15 +100,20 @@ function hex2a(hexx) {
  * Envio de correos a la aseguradora con los datos del pago a realizar
  */
 function sendEmailToInsurer(takerId, insuranceId) {
-    let link = "" //TODO: poner enlace a consulta de póliza de aplicación web
+    const parsedInsuranceId = toUUID(insuranceId);
+    const parsedTakerId = toUUID(takerId);
+
+    const htmlEmail = mailTemplate
+      .replace(/\<INSURANCEID\>/g, parsedInsuranceId)
+      .replace(/\<TAKERID\>/g, parsedTakerId);
 
     // send email
     mail.sendEmail(
-        config.EMAIL.insurerEmail,
-        'SPC19: Indemnización calculada por la blockchain',
-        `Hola,\nSe ha recibido un evento de la blockchain indicando que procede un pago con los siguientes datos.\n   - Identificador de la póliza: ${insuranceId}\n   - Identitifador del hotel: ${takerId}\nPuede acceder a los datos de la póliza usando el siguiente enlace: ${link}`,
-        `<p>Hola, <br><br>Se ha recibido un evento de la blockchain indicando que procede un pago con los siguientes datos:</p><p><ul><li>Identificador de la p&oacute;liza: ${insuranceId}</li><li>Identitifador del hotel: ${takerId}</li></ul></p><p>Puede acceder a los datos de la p&oacute;liza usando el siguiente enlace: ${link}</p>`
-    )
+      config.EMAIL.insurerEmail,
+      "SPC19: Indemnización calculada por la blockchain",
+      `Hola,\nSe ha recibido un evento de la blockchain indicando que procede un pago con los siguientes datos.\n   - Identificador de la póliza: ${parsedInsuranceId}\n   - Identitifador del hotel: ${parsedTakerId}`,
+      htmlEmail
+    );
 }
 
 async function manage(log) {
