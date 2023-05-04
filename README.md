@@ -1,28 +1,28 @@
 # SPC19 - Event Notification Service
 
-Servicio de notificación de eventos. Permite la suscripción a los eventos de varios contratos con un mismo `privacy Group`
+Event Notification Service of the project SPC19. Allows the subscription to the events of several contracts with the same `privacy Group`.
 
-Recibe por configuración el `privacyGroupId` al que se quiere escuchar, el webservice endpoint del nodo local de Hyperledger Besu local, y el fichero con el ABI del contrato asociado a los eventos a recibir.
+It receives by configuration the `privacyGroupId` to listen to, the webservice endpoint of the local Hyperledger Besu node, and the file with the ABI of the contract associated to the events to receive.
 
-Por defecto, usa el `privacyGroupId` asociado a la combinación `[ taker, laboratory ]`, el endpoint del nodo del `taker` (hotel) del proyecto SPC19, y el contrato `PCR.json`.
+By default, it uses the `privacyGroupId` associated with the `[ taker, laboratory ]` combination, the `taker` (hotel) node endpoint of the SPC19 project, and the `PCR.json` contract.
 
-> Nota: Los contratos deben estar incluidos como recursos en la carpeta `contract`.
+> Note: Contracts must be included as resources in the `contract` folder.
 
-Variables de entorno:
+Environment variables:
 
    - PRIVACYGROUPID [ 7LGGJ9igv9hZvgyLtTF7hTtisABHmFsNZLhsTzBPS2M= ]
    - BESUNODEWSURL [ ws://127.0.0.1:20003 ]
    - CONTRACTABIFILE [ PCR.json ]
 
-## Construcción
+## Build
 
 ```sh
 docker build . -t catedrabob-spc19-ens
 ```
 
-## Ejecución
+## Run
 
-Para la aseguradora:
+### Insurer:
 
 ```
 docker run -d \
@@ -34,7 +34,7 @@ docker run -d \
    catedrabob-spc19-ens
 ```
 
-Para el hotel:
+### Taker (Hotel):
 
 ```
 docker run -d \
@@ -46,4 +46,4 @@ docker run -d \
    catedrabob-spc19-ens
 ```
 
-> Nótese que se hace uso de la red docker que utiliza el despliegue de Besu, los nombres de los contenedores de los nodos de Besu y de los puertos internos a los contenedores.
+> Note that use is made of the docker network used by the Besu deployment, the container names of the Besu nodes and the internal ports to the containers.
